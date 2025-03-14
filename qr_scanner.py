@@ -56,7 +56,6 @@ while True:
                 conexion.commit()
                 mensaje = f"Asistencia registrada: {nombre} {apellido}"
                 print(mensaje)
-
         else:
             mensaje = "Código QR no registrado"
 

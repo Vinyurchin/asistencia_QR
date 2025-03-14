@@ -28,7 +28,7 @@ if not os.path.exists(output_dir):
 
 # Lista de usuarios de ejemplo
 usuarios = [
-    ("Jonathan", "Hernandez")
+    ("Rodolfo", "Alcántara")
 ]
 
 for nombre, apellido in usuarios:
