@@ -153,6 +153,9 @@ def iniciar_escaneo_qr():
 
                         # Validar datos del usuario
                         if not usuario_id or not nombre or not apellido:
+                            mensaje = "Datos del usuario inválidos."
+                            cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
                             continue
 
                         fecha_actual = datetime.now().strftime('%Y-%m-%d')
@@ -162,8 +165,10 @@ def iniciar_escaneo_qr():
                         asistencia_existente = cursor.fetchone()
 
                         if asistencia_existente:
-                            mensaje = f"El usuario {nombre} {apellido} ya tiene asistencia registrada hoy."
+                            mensaje = f"{nombre} {apellido} ya tiene asistencia registrada hoy."
                             print(mensaje)
+                            cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
                         else:
                             # Registrar asistencia en MySQL
                             cursor.execute("INSERT INTO asistencia (usuario_id, fecha_asistencia) VALUES (%s, NOW())", (usuario_id,))
@@ -174,19 +179,21 @@ def iniciar_escaneo_qr():
 
                             mensaje = f"Asistencia registrada: {nombre} {apellido}"
                             print(mensaje)
+                            cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
                         # Agregar el QR procesado a la lista
                         procesados.add(qr_data)
                     else:
                         mensaje = "Código QR no registrado"
                         print(mensaje)
-
-                    # Mostrar mensaje en la ventana sin detener la cámara
-                    cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+                        cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
 
                 except pymysql.MySQLError as e:
-                    print(f"Error al consultar la base de datos: {e}")
+                    mensaje = f"Error en la base de datos: {e}"
+                    print(mensaje)
+                    cv2.putText(frame, mensaje, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             # Muestra la cámara en tiempo real
             cv2.imshow("Escáner QR", frame)
