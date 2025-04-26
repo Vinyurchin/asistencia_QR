@@ -6,10 +6,10 @@ from openpyxl.styles import PatternFill
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, filedialog
-import shutil  # Para copiar archivos al descargar
+import shutil
 import os
 
-# Nombre del archivo de Excel
+# Nombre del archivo Excel
 excel_file = "asistencias.xlsx"
 
 # Intentar cargar el archivo, si no existe, crearlo
@@ -41,15 +41,24 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
         col_index = encabezados.index(fecha_actual) + 1  # Buscar la columna correcta
 
     # Buscar la fila del usuario
-    for row in ws.iter_rows(min_row=2, max_col=len(encabezados), values_only=False):
+    for row in ws.iter_rows(min_row=2, max_col=len(encabezados) + 1, values_only=False):
         if row[0].value == nombre and row[1].value == apellido and row[2].value == usuario_id:
-            # Verificar si ya tiene asistencia registrada
-            if row[col_index - 1].value is not None:
-                print(f"Asistencia ya registrada en Excel para: {nombre} {apellido}")
+            # Verificar si la celda correspondiente está marcada
+            celda_asistencia = ws.cell(row=row[0].row, column=col_index)
+            if celda_asistencia.value is not None:
+                # Si la celda está marcada, confirmar que tiene el valor correcto
+                if celda_asistencia.value != "Presente":
+                    celda_asistencia.value = "Presente"
+                    celda_asistencia.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
+                    wb.save(excel_file)
+                    print(f"Se corrigió la asistencia en Excel para: {nombre} {apellido}")
+                else:
+                    print(f"Asistencia ya registrada en Excel para: {nombre} {apellido}")
                 return
 
-            # Marcar asistencia con color verde
-            ws.cell(row=row[0].row, column=col_index).fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
+            # Si la celda está vacía, marcar asistencia
+            celda_asistencia.value = "Presente"
+            celda_asistencia.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
             wb.save(excel_file)
             print(f"Asistencia guardada en Excel: {nombre} {apellido}")
             return
@@ -57,6 +66,7 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
     # Si el usuario no está en la lista, agregarlo
     new_row = [nombre, apellido, usuario_id] + [None] * (col_index - 3)
     ws.append(new_row)
+    ws.cell(row=ws.max_row, column=col_index, value="Presente")
     ws.cell(row=ws.max_row, column=col_index).fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
     wb.save(excel_file)
     print(f"Asistencia guardada en Excel: {nombre} {apellido}")
@@ -120,7 +130,7 @@ def iniciar_escaneo_qr():
 
         # Variable de control para detener el bucle
         escaneando = True
-
+    
         while escaneando:
             ret, frame = cap.read()
             if not ret:
@@ -128,23 +138,23 @@ def iniciar_escaneo_qr():
 
             # Decodifica los QR en la imagen
             for qr in decode(frame):
-                if not qr.data:  # Ignorar resultados vacíos
-                    continue
-
-                qr_data = qr.data.decode("utf-8")  # Extrae el contenido del QR
-                qr_rect = qr.rect  # Obtiene la posición del QR
-
-                # Evitar procesar el mismo QR repetidamente
-                if qr_data in procesados:
-                    continue
-
-                # Dibuja un rectángulo alrededor del QR
-                cv2.rectangle(frame, (qr_rect.left, qr_rect.top),
-                              (qr_rect.left + qr_rect.width, qr_rect.top + qr_rect.height),
-                              (0, 255, 0), 3)
-
-                # Buscar el código QR en la base de datos
                 try:
+                    if not qr.data or not hasattr(qr, 'rect'):  
+                        continue
+
+                    qr_data = qr.data.decode("utf-8")  # Extrae el contenido del QR
+                    qr_rect = qr.rect  # Obtiene la posición del QR
+
+                    # Evitar procesar el mismo QR repetidamente
+                    if qr_data in procesados:
+                        continue
+
+                    # Dibuja un rectángulo alrededor del QR
+                    cv2.rectangle(frame, (qr_rect.left, qr_rect.top),
+                                  (qr_rect.left + qr_rect.width, qr_rect.top + qr_rect.height),
+                                  (0, 255, 0), 3)
+
+                    # Buscar el código QR en la base de datos
                     cursor.execute("SELECT id, nombre, apellido FROM usuarios WHERE qr_code = %s", (qr_data,))
                     usuario = cursor.fetchone()
 
