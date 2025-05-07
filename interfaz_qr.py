@@ -7,11 +7,11 @@ from PIL import Image, ImageTk
 import os
 import shutil
 
-# Ruta del archivo Excel
+# Ruta del Excel
 excel_file = "asistencias.xlsx"
 qr_folder = "imagenes_qr"
 
-# Crear la carpeta de imágenes QR si no existe
+# Crear la carpeta de imágenes QR
 if not os.path.exists(qr_folder):
     os.makedirs(qr_folder)
 
@@ -20,9 +20,11 @@ def iniciar_camara():
     def ejecutar_escaneo():
         try:
             iniciar_escaneo_qr()
+            actualizar_estado("Escaneo completado", "green")
         except Exception as e:
             print(f"Error al iniciar la cámara: {e}")
             messagebox.showerror("Error", f"Error al iniciar la cámara: {e}")
+            actualizar_estado("Error al iniciar la cámara", "red")
 
     hilo = threading.Thread(target=ejecutar_escaneo)
     hilo.daemon = True
@@ -45,7 +47,7 @@ def descargar_excel():
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo guardar el archivo: {e}")
 
-# Función para generar un nuevo usuario desde la interfaz
+# Función para generar un nuevo usuario
 def generar_usuario_desde_interfaz():
     def ejecutar_generacion():
         try:
@@ -109,7 +111,7 @@ def mostrar_todos_qrs():
     btn_abrir_qr = tk.Button(ventana_qrs, text="Abrir QR", command=abrir_qr, bg="purple", fg="white")
     btn_abrir_qr.pack(pady=10)
 
-# Crear la ventana principal
+# Estructura de la interfaz
 root = tk.Tk()
 root.title("Sistema de Asistencia con QR")
 root.geometry("400x700")
@@ -144,5 +146,16 @@ btn_generar_usuario.grid(row=2, column=0, columnspan=2, pady=10)
 
 btn_mostrar_qrs = tk.Button(root, text="Mostrar Todos los QRs", command=mostrar_todos_qrs, width=20, height=2, bg="purple", fg="white")
 btn_mostrar_qrs.pack(pady=10)
+
+# Create a status bar
+frame_estado = tk.Frame(root, bg="lightgray", height=50)
+frame_estado.pack(fill=tk.X)
+
+label_estado = tk.Label(frame_estado, text="Estado: Esperando...", font=("Arial", 12), bg="lightgray")
+label_estado.pack(pady=10)
+
+# Function to update the status bar
+def actualizar_estado(mensaje, color="black"):
+    label_estado.config(text=f"Estado: {mensaje}", fg=color)
 
 root.mainloop()

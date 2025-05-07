@@ -5,12 +5,23 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
 from datetime import datetime
 import tkinter as tk
+import json
 from tkinter import messagebox, filedialog
 import shutil
 import os
 
-# Nombre del archivo Excel
 excel_file = "asistencias.xlsx"
+
+# Leer la configuración de la base de datos
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
+
+conexion = pymysql.connect(
+    host=config["host"],
+    user=config["user"],
+    password=config["password"],
+    database=config["database"]
+)
 
 # Intentar cargar el archivo, si no existe, crearlo
 try:
@@ -139,11 +150,11 @@ def iniciar_escaneo_qr():
             # Decodifica los QR en la imagen
             for qr in decode(frame):
                 try:
-                    if not qr.data or not hasattr(qr, 'rect'):  
+                    if not qr.data or not hasattr(qr, 'rect'):
                         continue
 
-                    qr_data = qr.data.decode("utf-8")  # Extrae el contenido del QR
-                    qr_rect = qr.rect  # Obtiene la posición del QR
+                    qr_data = qr.data.decode("utf-8")
+                    qr_rect = qr.rect
 
                     # Evitar procesar el mismo QR repetidamente
                     if qr_data in procesados:
@@ -191,6 +202,9 @@ def iniciar_escaneo_qr():
                             print(mensaje)
                             cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                            # Mostrar una confirmación emergente
+                            messagebox.showinfo("Asistencia Registrada", mensaje)
 
                         # Agregar el QR procesado a la lista
                         procesados.add(qr_data)
