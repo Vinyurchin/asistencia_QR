@@ -38,7 +38,8 @@ except PermissionError:
 
 # Función para registrar asistencia correctamente en la columna de la fecha actual
 def registrar_asistencia_excel(usuario_id, nombre, apellido):
-    fecha_actual = datetime.now().strftime("%Y-%m-%d")
+    # Update the date format to include the month name and apply colors for better differentiation
+    fecha_actual = datetime.now().strftime("%d-%B-%Y")  # Example: 07-Mayo-2025
 
     # Obtener la lista de encabezados
     encabezados = [cell.value for cell in ws[1] if cell.value]  # Ignorar celdas vacías
@@ -60,7 +61,27 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
                 # Si la celda está marcada, confirmar que tiene el valor correcto
                 if celda_asistencia.value != "Presente":
                     celda_asistencia.value = "Presente"
-                    celda_asistencia.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
+                    # Apply colors to differentiate dates
+                    colores_mes = {
+                        "Enero": "FFCCCC",
+                        "Febrero": "FFCC99",
+                        "Marzo": "FFFF99",
+                        "Abril": "CCFFCC",
+                        "Mayo": "99CCFF",
+                        "Junio": "CCCCFF",
+                        "Julio": "FF99CC",
+                        "Agosto": "FF9966",
+                        "Septiembre": "FFFF66",
+                        "Octubre": "99FF99",
+                        "Noviembre": "66CCFF",
+                        "Diciembre": "CC99FF"
+                    }
+
+                    mes_actual = datetime.now().strftime("%B")
+                    color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+
+                    # When marking attendance, apply the color to the cell
+                    celda_asistencia.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
                     wb.save(excel_file)
                     print(f"Se corrigió la asistencia en Excel para: {nombre} {apellido}")
                 else:
@@ -69,8 +90,28 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
 
             # Si la celda está vacía, marcar asistencia
             celda_asistencia.value = "Presente"
-            celda_asistencia.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
-            wb.save(excel_file)
+            # Apply colors to differentiate dates
+            colores_mes = {
+                "Enero": "FFCCCC",
+                "Febrero": "FFCC99",
+                "Marzo": "FFFF99",
+                "Abril": "CCFFCC",
+                "Mayo": "99CCFF",
+                "Junio": "CCCCFF",
+                "Julio": "FF99CC",
+                "Agosto": "FF9966",
+                "Septiembre": "FFFF66",
+                "Octubre": "99FF99",
+                "Noviembre": "66CCFF",
+                "Diciembre": "CC99FF"
+            }
+
+            mes_actual = datetime.now().strftime("%B")
+            color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+
+            # When marking attendance, apply the color to the cell
+            celda_asistencia.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+            wb.save(excel_file)  # Save the changes to the Excel file
             print(f"Asistencia guardada en Excel: {nombre} {apellido}")
             return
 
@@ -78,8 +119,28 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
     new_row = [nombre, apellido, usuario_id] + [None] * (col_index - 3)
     ws.append(new_row)
     ws.cell(row=ws.max_row, column=col_index, value="Presente")
-    ws.cell(row=ws.max_row, column=col_index).fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
-    wb.save(excel_file)
+    # Apply colors to differentiate dates
+    colores_mes = {
+        "Enero": "FFCCCC",
+        "Febrero": "FFCC99",
+        "Marzo": "FFFF99",
+        "Abril": "CCFFCC",
+        "Mayo": "99CCFF",
+        "Junio": "CCCCFF",
+        "Julio": "FF99CC",
+        "Agosto": "FF9966",
+        "Septiembre": "FFFF66",
+        "Octubre": "99FF99",
+        "Noviembre": "66CCFF",
+        "Diciembre": "CC99FF"
+    }
+
+    mes_actual = datetime.now().strftime("%B")
+    color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+
+    # When marking attendance, apply the color to the cell
+    ws.cell(row=ws.max_row, column=col_index).fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+    wb.save(excel_file)  # Save the changes to the Excel file
     print(f"Asistencia guardada en Excel: {nombre} {apellido}")
 
 # Función para descargar el archivo Excel
@@ -203,8 +264,11 @@ def iniciar_escaneo_qr():
                             cv2.putText(frame, mensaje, (qr_rect.left, qr_rect.top - 10),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-                            # Mostrar una confirmación emergente
-                            messagebox.showinfo("Asistencia Registrada", mensaje)
+                            # Mostrar una confirmación emergente que se cierra automáticamente
+                            popup = tk.Toplevel()
+                            popup.title("Asistencia Registrada")
+                            tk.Label(popup, text=mensaje, font=("Arial", 14), fg="green").pack(pady=10, padx=10)
+                            popup.after(3000, popup.destroy)  # Cerrar automáticamente después de 3 segundos
 
                         # Agregar el QR procesado a la lista
                         procesados.add(qr_data)

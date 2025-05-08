@@ -20,11 +20,9 @@ def iniciar_camara():
     def ejecutar_escaneo():
         try:
             iniciar_escaneo_qr()
-            actualizar_estado("Escaneo completado", "green")
         except Exception as e:
             print(f"Error al iniciar la cámara: {e}")
             messagebox.showerror("Error", f"Error al iniciar la cámara: {e}")
-            actualizar_estado("Error al iniciar la cámara", "red")
 
     hilo = threading.Thread(target=ejecutar_escaneo)
     hilo.daemon = True
@@ -51,12 +49,20 @@ def descargar_excel():
 def generar_usuario_desde_interfaz():
     def ejecutar_generacion():
         try:
-            nombre = entry_nombre.get()
+            nombres = entry_nombre.get()
             apellido = entry_apellido.get()
-            if not nombre or not apellido:
-                messagebox.showwarning("Advertencia", "Por favor, ingresa el nombre y apellido.")
+            segundo_apellido = entry_segundo_apellido.get()
+
+            if not nombres or not apellido:
+                messagebox.showwarning("Advertencia", "Por favor, ingresa el nombre(s) y apellido(s).")
                 return
-            resultado = generar_qr_para_usuario(nombre, apellido)
+
+            # Combine the second surname if provided
+            nombre_completo = f"{nombres} {apellido}"
+            if segundo_apellido:
+                nombre_completo += f" {segundo_apellido}"
+
+            resultado = generar_qr_para_usuario(nombres, apellido)
             messagebox.showinfo("Éxito", resultado)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el usuario: {e}")
@@ -79,7 +85,21 @@ def mostrar_todos_qrs():
 
     ventana_qrs = Toplevel(root)
     ventana_qrs.title("Códigos QR Disponibles")
-    ventana_qrs.geometry("400x400")
+    ventana_qrs.geometry("400x500")
+
+    # Add a search bar
+    def filtrar_qrs():
+        query = entry_buscar.get().lower()
+        lista_qrs.delete(0, tk.END)
+        for archivo in archivos_qr:
+            if query in archivo.lower():
+                lista_qrs.insert(tk.END, archivo)
+
+    label_buscar = tk.Label(ventana_qrs, text="Buscar QR:", font=("Arial", 12))
+    label_buscar.pack(pady=5)
+    entry_buscar = tk.Entry(ventana_qrs, width=30)
+    entry_buscar.pack(pady=5)
+    entry_buscar.bind("<KeyRelease>", lambda event: filtrar_qrs())
 
     lista_qrs = Listbox(ventana_qrs, width=50, height=20)
     lista_qrs.pack(pady=10)
@@ -116,46 +136,47 @@ root = tk.Tk()
 root.title("Sistema de Asistencia con QR")
 root.geometry("400x700")
 
-label_titulo = tk.Label(root, text="Sistema de Asistencia con QR", font=("Arial", 16))
+# Improve the interface design
+root.configure(bg="lightblue")
+
+label_titulo = tk.Label(root, text="Sistema de Asistencia con QR", font=("Arial", 20, "bold"), bg="lightblue", fg="darkblue")
 label_titulo.pack(pady=10)
 
-btn_iniciar_camara = tk.Button(root, text="Iniciar Cámara", command=iniciar_camara, width=20, height=2, bg="green", fg="white")
+btn_iniciar_camara = tk.Button(root, text="Iniciar Cámara", command=iniciar_camara, width=20, height=2, bg="green", fg="white", font=("Arial", 12, "bold"))
 btn_iniciar_camara.pack(pady=10)
 
-btn_descargar_excel = tk.Button(root, text="Descargar Excel", command=descargar_excel, width=20, height=2, bg="blue", fg="white")
+btn_descargar_excel = tk.Button(root, text="Descargar Excel", command=descargar_excel, width=20, height=2, bg="blue", fg="white", font=("Arial", 12, "bold"))
 btn_descargar_excel.pack(pady=10)
 
-btn_abrir_excel = tk.Button(root, text="Abrir Excel", command=lambda: os.startfile(excel_file), width=20, height=2, bg="gray", fg="white")
-btn_abrir_excel.pack(pady=10)
+btn_visualizar_excel = tk.Button(root, text="Visualizar Excel", command=lambda: os.startfile(excel_file), width=20, height=2, bg="gray", fg="white", font=("Arial", 12, "bold"))
+btn_visualizar_excel.pack(pady=10)
 
-frame_generar_usuario = tk.Frame(root)
+frame_generar_usuario = tk.Frame(root, bg="lightblue")
 frame_generar_usuario.pack(pady=20)
 
-label_nombre = tk.Label(frame_generar_usuario, text="Nombre:")
-label_nombre.grid(row=0, column=0, padx=5, pady=5)
-entry_nombre = tk.Entry(frame_generar_usuario)
-entry_nombre.grid(row=0, column=1, padx=5, pady=5)
+label_nombre = tk.Label(frame_generar_usuario, text="Nombre(s):", bg="lightblue", fg="darkblue", font=("Arial", 12))
+label_nombre.grid(row=0, column=0, padx=10, pady=5)
+entry_nombre = tk.Entry(frame_generar_usuario, width=30)
+entry_nombre.grid(row=0, column=1, padx=10, pady=5)
 
-label_apellido = tk.Label(frame_generar_usuario, text="Apellido:")
-label_apellido.grid(row=1, column=0, padx=5, pady=5)
-entry_apellido = tk.Entry(frame_generar_usuario)
-entry_apellido.grid(row=1, column=1, padx=5, pady=5)
+label_apellido = tk.Label(frame_generar_usuario, text="Apellido(s):", bg="lightblue", fg="darkblue", font=("Arial", 12))
+label_apellido.grid(row=1, column=0, padx=10, pady=5)
+entry_apellido = tk.Entry(frame_generar_usuario, width=30)
+entry_apellido.grid(row=1, column=1, padx=10, pady=5)
 
-btn_generar_usuario = tk.Button(frame_generar_usuario, text="Generar Usuario", command=generar_usuario_desde_interfaz, bg="orange", fg="white")
-btn_generar_usuario.grid(row=2, column=0, columnspan=2, pady=10)
+entry_segundo_apellido = tk.Entry(frame_generar_usuario, width=30)
+entry_segundo_apellido.grid(row=2, column=1, padx=10, pady=5)
+label_segundo_apellido = tk.Label(frame_generar_usuario, text="Segundo Apellido:", bg="lightblue", fg="darkblue", font=("Arial", 12))
+label_segundo_apellido.grid(row=2, column=0, padx=10, pady=5)
 
-btn_mostrar_qrs = tk.Button(root, text="Mostrar Todos los QRs", command=mostrar_todos_qrs, width=20, height=2, bg="purple", fg="white")
+btn_generar_usuario = tk.Button(frame_generar_usuario, text="Generar Usuario", command=generar_usuario_desde_interfaz, bg="orange", fg="white", font=("Arial", 12, "bold"))
+btn_generar_usuario.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
+btn_mostrar_qrs = tk.Button(root, text="Mostrar Todos los QRs", command=mostrar_todos_qrs, width=20, height=2, bg="purple", fg="white", font=("Arial", 12, "bold"))
 btn_mostrar_qrs.pack(pady=10)
 
-# Create a status bar
-frame_estado = tk.Frame(root, bg="lightgray", height=50)
-frame_estado.pack(fill=tk.X)
-
-label_estado = tk.Label(frame_estado, text="Estado: Esperando...", font=("Arial", 12), bg="lightgray")
-label_estado.pack(pady=10)
-
-# Function to update the status bar
-def actualizar_estado(mensaje, color="black"):
-    label_estado.config(text=f"Estado: {mensaje}", fg=color)
+# Add a footer
+footer = tk.Label(root, text="Sistema de Asistencia con QR - 2025", bg="lightblue", fg="darkblue", font=("Arial", 10))
+footer.pack(side=tk.BOTTOM, pady=10)
 
 root.mainloop()

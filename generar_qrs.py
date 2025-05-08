@@ -73,6 +73,9 @@ def generar_qr_para_usuario(nombre, apellido):
         nombre_archivo = os.path.join(output_dir, f"{nombre}_{apellido}.png").replace(" ", "_")
         imagen_qr.save(nombre_archivo)
 
+        # Show the QR code to the user
+        imagen_qr.show()
+
         print(f"Código QR para {nombre} {apellido}: {codigo_qr} → Guardado como {nombre_archivo}")
         return f"Código QR generado correctamente: {nombre_archivo}"
 

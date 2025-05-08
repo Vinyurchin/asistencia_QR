@@ -4,10 +4,12 @@ CREATE DATABASE IF NOT EXISTS asistencia;
 USE asistencia;
 
 -- Tabla de usuarios
-CREATE TABLE IF NOT EXISTS usuarios (
+DROP TABLE IF EXISTS usuarios;
+CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
+    segundo_apellido VARCHAR(100) NULL, -- Nuevo campo opcional
     qr_code VARCHAR(255) UNIQUE NOT NULL
 );
 
