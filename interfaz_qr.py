@@ -6,6 +6,7 @@ from generar_qrs import generar_qr_para_usuario
 from PIL import Image, ImageTk
 import os
 import shutil
+from openpyxl import load_workbook
 
 # Ruta del Excel
 excel_file = "asistencias.xlsx"
@@ -151,6 +152,41 @@ btn_descargar_excel.pack(pady=10)
 btn_visualizar_excel = tk.Button(root, text="Visualizar Excel", command=lambda: os.startfile(excel_file), width=20, height=2, bg="gray", fg="white", font=("Arial", 12, "bold"))
 btn_visualizar_excel.pack(pady=10)
 
+# Move the definition of limpiar_excel above the button creation
+def limpiar_excel():
+    def confirmar_limpiar():
+        if messagebox.askyesno("Confirmación", "¿Estás seguro de que deseas limpiar el archivo Excel? Esta acción no se puede deshacer."):
+            try:
+                # Crear un respaldo antes de limpiar
+                ruta_respaldo = filedialog.asksaveasfilename(
+                    defaultextension=".xlsx",
+                    filetypes=[("Archivos de Excel", "*.xlsx")],
+                    title="Guardar respaldo del archivo de Excel"
+                )
+                if ruta_respaldo:
+                    shutil.copy(excel_file, ruta_respaldo)
+                    messagebox.showinfo("Éxito", f"Respaldo guardado en: {ruta_respaldo}")
+
+                # Limpiar el archivo Excel
+                wb = Workbook()
+                ws = wb.active
+                ws.append(["Nombre", "Apellido", "Número de Alumno"])  # Encabezados base
+                wb.save(excel_file)
+                messagebox.showinfo("Éxito", "El archivo Excel ha sido limpiado correctamente.")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo limpiar el archivo Excel: {e}")
+
+    # Ventana de confirmación
+    confirmar_limpiar()
+
+# Ensure the button is created after the function definition
+btn_limpiar_excel = tk.Button(root, text="Limpiar Excel", command=limpiar_excel, width=20, height=2, bg="red", fg="white", font=("Arial", 12, "bold"))
+btn_limpiar_excel.pack(pady=10)
+
+# Botón para importar el Excel
+btn_importar_excel = tk.Button(root, text="Importar Excel", command=importar_excel, width=20, height=2, bg="orange", fg="white", font=("Arial", 12, "bold"))
+btn_importar_excel.pack(pady=10)
+
 frame_generar_usuario = tk.Frame(root, bg="lightblue")
 frame_generar_usuario.pack(pady=20)
 
@@ -180,3 +216,33 @@ footer = tk.Label(root, text="Sistema de Asistencia con QR - 2025", bg="lightblu
 footer.pack(side=tk.BOTTOM, pady=10)
 
 root.mainloop()
+
+# Add a button to import an Excel file and validate its format
+def importar_excel():
+    try:
+        # Seleccionar el archivo Excel
+        ruta_excel = filedialog.askopenfilename(
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Seleccionar archivo de Excel"
+        )
+        if not ruta_excel:
+            return
+
+        # Cargar el archivo Excel
+        wb = load_workbook(ruta_excel)
+        ws = wb.active
+
+        # Verificar las columnas esperadas
+        columnas_esperadas = ["Nombre", "Apellido", "Número de Alumno"]
+        columnas_excel = [cell.value for cell in ws[1] if cell.value]
+
+        if not all(col in columnas_excel for col in columnas_esperadas):
+            messagebox.showerror("Error", "El archivo Excel no tiene el formato adecuado.")
+            return
+
+        # Sobrescribir el archivo actual con el nuevo
+        shutil.copy(ruta_excel, excel_file)
+        messagebox.showinfo("Éxito", "El archivo Excel ha sido importado correctamente.")
+
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudo importar el archivo Excel: {e}")
