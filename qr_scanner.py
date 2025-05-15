@@ -63,22 +63,22 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
                     celda_asistencia.value = "Presente"
                     # Apply colors to differentiate dates
                     colores_mes = {
-                        "Enero": "FFCCCC",
-                        "Febrero": "FFCC99",
-                        "Marzo": "FFFF99",
-                        "Abril": "CCFFCC",
-                        "Mayo": "99CCFF",
-                        "Junio": "CCCCFF",
-                        "Julio": "FF99CC",
-                        "Agosto": "FF9966",
-                        "Septiembre": "FFFF66",
-                        "Octubre": "99FF99",
-                        "Noviembre": "66CCFF",
-                        "Diciembre": "CC99FF"
+                        "Enero": "CCFFCC",      # Verde muy claro
+                        "Febrero": "FFFFCC",    # Amarillo muy claro
+                        "Marzo": "CCE5FF",      # Azul muy claro
+                        "Abril": "FFCCE5",      # Rosa muy claro
+                        "Mayo": "FFF2CC",       # Naranja muy claro
+                        "Junio": "E0CCFF",      # Lila muy claro
+                        "Julio": "CCFFFF",      # Aqua muy claro
+                        "Agosto": "FFD9B3",     # Durazno claro
+                        "Septiembre": "F0FFF0", # Verde pálido
+                        "Octubre": "FFF0F5",    # Lavanda claro
+                        "Noviembre": "F5FFFA",  # Menta claro
+                        "Diciembre": "F0FFFF"   # Celeste muy claro
                     }
 
                     mes_actual = datetime.now().strftime("%B")
-                    color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+                    color = "99FF99"  # Verde claro para 'Presente'
 
                     # When marking attendance, apply the color to the cell
                     celda_asistencia.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
@@ -92,22 +92,22 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
             celda_asistencia.value = "Presente"
             # Apply colors to differentiate dates
             colores_mes = {
-                "Enero": "FFCCCC",
-                "Febrero": "FFCC99",
-                "Marzo": "FFFF99",
-                "Abril": "CCFFCC",
-                "Mayo": "99CCFF",
-                "Junio": "CCCCFF",
-                "Julio": "FF99CC",
-                "Agosto": "FF9966",
-                "Septiembre": "FFFF66",
-                "Octubre": "99FF99",
-                "Noviembre": "66CCFF",
-                "Diciembre": "CC99FF"
+                "Enero": "CCFFCC",      # Verde muy claro
+                "Febrero": "FFFFCC",    # Amarillo muy claro
+                "Marzo": "CCE5FF",      # Azul muy claro
+                "Abril": "FFCCE5",      # Rosa muy claro
+                "Mayo": "FFF2CC",       # Naranja muy claro
+                "Junio": "E0CCFF",      # Lila muy claro
+                "Julio": "CCFFFF",      # Aqua muy claro
+                "Agosto": "FFD9B3",     # Durazno claro
+                "Septiembre": "F0FFF0", # Verde pálido
+                "Octubre": "FFF0F5",    # Lavanda claro
+                "Noviembre": "F5FFFA",  # Menta claro
+                "Diciembre": "F0FFFF"   # Celeste muy claro
             }
 
             mes_actual = datetime.now().strftime("%B")
-            color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+            color = "99FF99"  # Verde claro para 'Presente'
 
             # When marking attendance, apply the color to the cell
             celda_asistencia.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
@@ -121,22 +121,22 @@ def registrar_asistencia_excel(usuario_id, nombre, apellido):
     ws.cell(row=ws.max_row, column=col_index, value="Presente")
     # Apply colors to differentiate dates
     colores_mes = {
-        "Enero": "FFCCCC",
-        "Febrero": "FFCC99",
-        "Marzo": "FFFF99",
-        "Abril": "CCFFCC",
-        "Mayo": "99CCFF",
-        "Junio": "CCCCFF",
-        "Julio": "FF99CC",
-        "Agosto": "FF9966",
-        "Septiembre": "FFFF66",
-        "Octubre": "99FF99",
-        "Noviembre": "66CCFF",
-        "Diciembre": "CC99FF"
+        "Enero": "CCFFCC",      # Verde muy claro
+        "Febrero": "FFFFCC",    # Amarillo muy claro
+        "Marzo": "CCE5FF",      # Azul muy claro
+        "Abril": "FFCCE5",      # Rosa muy claro
+        "Mayo": "FFF2CC",       # Naranja muy claro
+        "Junio": "E0CCFF",      # Lila muy claro
+        "Julio": "CCFFFF",      # Aqua muy claro
+        "Agosto": "FFD9B3",     # Durazno claro
+        "Septiembre": "F0FFF0", # Verde pálido
+        "Octubre": "FFF0F5",    # Lavanda claro
+        "Noviembre": "F5FFFA",  # Menta claro
+        "Diciembre": "F0FFFF"   # Celeste muy claro
     }
 
     mes_actual = datetime.now().strftime("%B")
-    color = colores_mes.get(mes_actual, "FFFFFF")  # Default color: white
+    color = "99FF99"  # Verde claro para 'Presente'
 
     # When marking attendance, apply the color to the cell
     ws.cell(row=ws.max_row, column=col_index).fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
