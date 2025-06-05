@@ -10,6 +10,8 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 import pymysql
 import zipfile
+import psutil
+import msvcrt
 
 # Ruta del Excel
 excel_file = "asistencias.xlsx"
@@ -19,8 +21,20 @@ qr_folder = "imagenes_qr"
 if not os.path.exists(qr_folder):
     os.makedirs(qr_folder)
 
+def archivo_excel_abierto():
+    try:
+        with open(excel_file, 'r+b') as f:
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+        return False
+    except (OSError, PermissionError):
+        return True
+
 # Función para iniciar la cámara y escanear QR
 def iniciar_camara():
+    if archivo_excel_abierto():
+        messagebox.showerror("Error", "No puedes registrar asistencias mientras el archivo de Excel esté abierto. Por favor, cierra el archivo e inténtalo de nuevo.")
+        return
     def ejecutar_escaneo():
         try:
             iniciar_escaneo_qr()
@@ -141,7 +155,7 @@ def mostrar_todos_qrs():
     def abrir_qr():
         seleccion = lista_qrs.curselection()
         if seleccion:
-            archivo_seleccionado = archivos_qr[seleccion[0]]
+            archivo_seleccionado = lista_qrs.get(seleccion[0])  # Obtener el nombre directamente del Listbox
             ruta_archivo = os.path.join(qr_folder, archivo_seleccionado)
             try:
                 ventana_imagen = Toplevel(ventana_qrs)
